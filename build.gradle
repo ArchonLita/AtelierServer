@@ -17,6 +17,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation "org.springframework.boot:spring-boot-starter-web"
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	compileOnly 'org.projectlombok:lombok'
@@ -26,6 +27,9 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
+
+	implementation 'commons-io:commons-io:2.15.1'
+	implementation 'org.apache.commons:commons-collections4:4.4'
 }
 
 tasks.named('test') {

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +25,8 @@ public class FileDatabase {
     @Autowired
     private AtelierConfiguration config;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Map<Long, Sheet> data = new HashMap<>();
 
@@ -47,24 +50,21 @@ public class FileDatabase {
 
     public void save() {
         File dir = new File(config.getDatabasePath());
-        dir.delete();
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         dir.mkdirs();
 
         for (long id : data.keySet()) {
             try {
-                mapper.writeValue(new File(String.format("%s/%d.json", config.getDatabasePath(), id)), data.get(id));
+                File file = new File(String.format("%s/%d.json", config.getDatabasePath(), id));
+                objectMapper.writeValue(file, data.get(id));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private static long getIdFromFilename(File file) {
-        var temp = file.toString().split("/");
-        temp = temp[temp.length - 1].split("\\.");
-        if (temp.length == 0)
-            return -1;
-        return Long.parseLong(temp[0]);
     }
 
     public void load() {
@@ -76,12 +76,12 @@ public class FileDatabase {
             for (var file : files) {
                 long id;
                 try {
-                    id = getIdFromFilename(file);
+                    id = Long.parseLong(FilenameUtils.getBaseName(file.toString()));
                 } catch (NumberFormatException e) {
                     continue;
                 }
 
-                Sheet sheet = mapper.readValue(file, Sheet.class);
+                Sheet sheet = objectMapper.readValue(file, Sheet.class);
                 data.put(id, sheet);
             }
         } catch (IOException e) {

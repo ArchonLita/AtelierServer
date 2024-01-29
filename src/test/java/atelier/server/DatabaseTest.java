@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +24,28 @@ class DatabaseTest {
 	@Autowired
 	private FileDatabase database;
 
+	private String originalDatabasePath;
+
 	@BeforeEach
 	void setup() {
+		originalDatabasePath = config.getDatabasePath();
+		config.setDatabasePath("./test");
 		database.load();
 	}
 
+	@AfterEach
+	void cleanup() throws IOException {
+		FileUtils.deleteDirectory(new File(config.getDatabasePath()));
+		config.setDatabasePath(originalDatabasePath);
+	}
+
 	@Test
-	void testDatabase() throws IOException {
+	void saveAndLoadSheet() throws IOException {
 		Sheet sheet = new Sheet();
-		System.arraycopy(new int[] { 15, 14, 13, 12, 10, 9 }, 0, sheet.getBaseAbilityScores(), 0, 6);
 
 		long id = database.put(sheet);
 		database.save();
-		assertTrue(new File(String.format("./data/%d.json", id)).exists());
+		assertTrue(new File(String.format("./test/%d.json", id)).exists());
 
 		database.load();
 		Sheet loadedSheet = database.get(id);
