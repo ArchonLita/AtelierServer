@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import atelier.server.dnd.Ability;
 import atelier.server.dnd.Sheet;
 
 @SpringBootTest
@@ -42,6 +43,8 @@ class DatabaseTest {
 	@Test
 	void saveAndLoadSheet() throws IOException {
 		Sheet sheet = new Sheet();
+        sheet.setBaseAbilityScores(Ability.scores(15, 14, 13, 12, 10, 9));
+		sheet.load();
 
 		long id = database.put(sheet);
 		database.save();
@@ -49,6 +52,7 @@ class DatabaseTest {
 
 		database.load();
 		Sheet loadedSheet = database.get(id);
+		loadedSheet.load();
 		assertEquals(sheet, loadedSheet);
 
 		database.remove(id);

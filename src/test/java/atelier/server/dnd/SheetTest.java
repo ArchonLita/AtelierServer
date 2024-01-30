@@ -1,6 +1,5 @@
 package atelier.server.dnd;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -22,12 +21,12 @@ public class SheetTest {
     @Test
     public void generateScoresAndModifiers() throws JsonProcessingException {
         Sheet sheet = new Sheet();
-        sheet.setBaseAbilityScores(new int[] { 15, 14, 13, 12, 10, 9 });
+        sheet.setBaseAbilityScores(Ability.scores(15, 14, 13, 12, 10, 9));
         sheet.load();
 
-        assertArrayEquals(new int[] { 15, 14, 13, 12, 10, 9 }, sheet.getAbilityScores());
-        assertArrayEquals(new int[] { 2, 2, 1, 1, 0, -1 }, sheet.getAbilityModifiers());
-        assertArrayEquals(new int[] { 2, 2, 1, 1, 0, -1 }, sheet.getSavingModifiers());
+        assertEquals(Ability.scores(15, 14, 13, 12, 10, 9), sheet.getAbilityScores());
+        assertEquals(Ability.scores(2, 2, 1, 1, 0, -1), sheet.getAbilityModifiers());
+        assertEquals(Ability.scores(2, 2, 1, 1, 0, -1), sheet.getSavingModifiers());
 
         var data = objectMapper.readTree(objectMapper.writeValueAsString(sheet));
         var keys = IteratorUtils.toList(data.fieldNames());
