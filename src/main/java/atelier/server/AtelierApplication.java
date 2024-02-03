@@ -8,5 +8,4 @@ public class AtelierApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AtelierApplication.class, args);
 	}
-
 }

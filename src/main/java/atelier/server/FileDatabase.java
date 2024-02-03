@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import atelier.server.dnd.Sheet;
+import jakarta.annotation.PreDestroy;
 
 @Component
 public class FileDatabase {
@@ -30,8 +32,17 @@ public class FileDatabase {
 
     private Map<Long, Sheet> data = new HashMap<>();
 
+    @PreDestroy
+    public void destroy() {
+        save();
+    }
+
     public Sheet get(long id) {
         return data.get(id);
+    }
+
+    public Set<Long> keys() {
+        return data.keySet();
     }
 
     public long put(Sheet sheet) {
