@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -30,32 +31,38 @@ public class FileDatabase {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private Map<Long, Sheet> data = new HashMap<>();
+    private Map<String, Sheet> data = new HashMap<>();
 
     @PreDestroy
     public void destroy() {
         save();
     }
 
-    public Sheet get(long id) {
+    public Sheet get(String id) {
         return data.get(id);
     }
 
-    public Set<Long> keys() {
+    public Set<String> keys() {
         return data.keySet();
     }
 
-    public long put(Sheet sheet) {
-        long id = Math.abs(ThreadLocalRandom.current().nextLong());
+    public Collection<Sheet> sheets() {
+        return data.values();
+    }
+
+    public String put(Sheet sheet) {
+        String id = Long.toString(Math.abs(ThreadLocalRandom.current().nextLong()));
+        sheet.setId(id);
         data.put(id, sheet);
         return id;
     }
 
-    public void put(long id, Sheet sheet) {
+    public void put(String id, Sheet sheet) {
+        sheet.setId(id);
         data.put(id, sheet);
     }
 
-    public Sheet remove(long id) {
+    public Sheet remove(String id) {
         return data.remove(id);
     }
 
@@ -68,9 +75,9 @@ public class FileDatabase {
         }
         dir.mkdirs();
 
-        for (long id : data.keySet()) {
+        for (String id : data.keySet()) {
             try {
-                File file = new File(String.format("%s/%d.json", config.getDatabasePath(), id));
+                File file = new File(String.format("%s/%s.json", config.getDatabasePath(), id));
                 objectMapper.writeValue(file, data.get(id));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -85,14 +92,10 @@ public class FileDatabase {
                     .map(Path::toFile)
                     .collect(Collectors.toList());
             for (var file : files) {
-                long id;
-                try {
-                    id = Long.parseLong(FilenameUtils.getBaseName(file.toString()));
-                } catch (NumberFormatException e) {
-                    continue;
-                }
-
+                if(file.isDirectory()) continue;
+                String id = FilenameUtils.getBaseName(file.toString());
                 Sheet sheet = objectMapper.readValue(file, Sheet.class);
+                sheet.load();
                 data.put(id, sheet);
             }
         } catch (IOException e) {

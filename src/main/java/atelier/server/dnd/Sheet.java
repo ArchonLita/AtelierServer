@@ -10,6 +10,9 @@ import lombok.Data;
 @Data
 public class Sheet {
     @JsonProperty
+    private String id;
+
+    @JsonProperty
     private EnumMap<Ability, Integer> baseAbilityScores = new EnumMap<>(Ability.class);
 
     private EnumMap<Ability, Integer> abilityScores = new EnumMap<>(Ability.class);

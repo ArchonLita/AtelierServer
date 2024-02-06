@@ -43,12 +43,12 @@ class DatabaseTest {
 	@Test
 	void saveAndLoadSheet() throws IOException {
 		Sheet sheet = new Sheet();
-        sheet.setBaseAbilityScores(Ability.scores(15, 14, 13, 12, 10, 9));
+		sheet.setBaseAbilityScores(Ability.scores(15, 14, 13, 12, 10, 9));
 		sheet.load();
 
-		long id = database.put(sheet);
+		String id = database.put(sheet);
 		database.save();
-		assertTrue(new File(String.format("./test/%d.json", id)).exists());
+		assertTrue(new File(String.format("./test/%s.json", id)).exists());
 
 		database.load();
 		Sheet loadedSheet = database.get(id);
